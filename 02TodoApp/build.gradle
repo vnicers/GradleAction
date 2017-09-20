@@ -35,9 +35,8 @@ dependencies {
 }
 
 gretty {
-
-    port = 8081
-    contextPath = '/MyWebApp'
+    httpPort = 9090
+    contextPath = '/'
 
     // supported values:
     // 'jetty7', 'jetty8', 'jetty9', 'jetty93', 'jetty94', 'tomcat7', 'tomcat8'
