@@ -1,1 +1,15 @@
-.idea/
+#ide
+.settings/
+.project
+.classpath
+.idea
+*.iml
+
+#maven
+/target/
+
+#gradle
+.gradle
+/build/
+
+/out
