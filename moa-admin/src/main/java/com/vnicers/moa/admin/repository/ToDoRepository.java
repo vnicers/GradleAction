@@ -1,6 +1,6 @@
-package com.vnicers.todo.repository;
+package com.vnicers.moa.admin.repository;
 
-import com.vnicers.todo.model.ToDoItem;
+import com.vnicers.moa.admin.model.ToDoItem;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
-package com.vnicers.todo;
+package com.vnicers.moa.admin;
 
-import com.vnicers.todo.util.CommandLineInput;
-import com.vnicers.todo.util.CommandLineInputHandler;
+import com.vnicers.moa.admin.util.CommandLineInput;
+import com.vnicers.moa.admin.util.CommandLineInputHandler;
 
 public class ToDoApp {
     private static final char DEFAULT_INPUT = '\u0000';

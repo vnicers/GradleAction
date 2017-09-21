@@ -1,4 +1,4 @@
-package com.vnicers.todo.model;
+package com.vnicers.moa.admin.model;
 
 import lombok.Data;
 

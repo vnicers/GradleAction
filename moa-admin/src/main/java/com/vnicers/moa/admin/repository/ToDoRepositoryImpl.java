@@ -1,9 +1,8 @@
-package com.vnicers.todo.repository;
+package com.vnicers.moa.admin.repository;
 
-import com.vnicers.todo.model.ToDoItem;
+import com.vnicers.moa.admin.model.ToDoItem;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

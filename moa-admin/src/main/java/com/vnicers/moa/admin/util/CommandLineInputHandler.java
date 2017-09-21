@@ -1,9 +1,9 @@
-package com.vnicers.todo.util;
+package com.vnicers.moa.admin.util;
 
 
-import com.vnicers.todo.model.ToDoItem;
-import com.vnicers.todo.repository.ToDoRepository;
-import com.vnicers.todo.repository.ToDoRepositoryImpl;
+import com.vnicers.moa.admin.model.ToDoItem;
+import com.vnicers.moa.admin.repository.ToDoRepository;
+import com.vnicers.moa.admin.repository.ToDoRepositoryImpl;
 
 import java.util.Collection;
 import java.util.Scanner;
