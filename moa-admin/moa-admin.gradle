@@ -1,3 +1,6 @@
+import com.vnicers.build.gradle.ProjectVersion
+import com.vnicers.build.gradle.ReleaseVersionTask
+
 description = '管理控制台'
 
 apply plugin: 'war'
@@ -27,28 +30,7 @@ gretty {
     servletContainer = 'tomcat8'
 }
 
-class ProjectVersion {
-    Integer major
-    Integer minor
-    Boolean release
 
-    ProjectVersion(Integer major, Integer minor) {
-        this.major = major
-        this.minor = minor
-        this.release = Boolean.FALSE
-    }
-
-
-    ProjectVersion(Integer major, Integer minor, Boolean release) {
-        this(major, minor)
-        this.release = release
-    }
-
-    @Override
-    String toString() {
-        "$major.$minor${release ? '-RELEASE' : '-SNAPSHOT'}"
-    }
-}
 
 ext.versionFile = file('version.properties')
 
@@ -71,27 +53,6 @@ ProjectVersion readVersion() {
             versionProps.minor.toInteger(), versionProps.release.toBoolean())
 }
 
-class ReleaseVersionTask extends DefaultTask {
-    @Input
-    Boolean release
-    @OutputFile
-    File destFile
-
-    ReleaseVersionTask() {
-        group = 'version'
-        description = 'Makes project a release version'
-    }
-
-    @TaskAction
-    void start() {
-        project.version.release = true
-
-        ant.propertyfile(file: destFile) {
-            entry(key: 'release', type: 'string', operation: '=', value: 'true')
-        }
-        logger.quiet "Version: ${project.version}"
-    }
-}
 
 task printVersion {
     group 'version'
@@ -101,8 +62,72 @@ task printVersion {
     }
 }
 
-task makeRelease(type: ReleaseVersionTask) {
-    release = version.release
-    destFile = versionFile
+gradle.taskGraph.whenReady { TaskExecutionGraph taskGraph ->
+    if (taskGraph.hasTask(release)) {
+        if (!version.release) {
+            version.release = true
+
+            ant.propertyfile(file: versionFile) {
+                entry(key: 'release', type: 'string', operation: '=', value: 'true')
+            }
+        }
+    }
 }
 
+task createDistribution(type: Zip) {
+    group 'version'
+
+    from war.outputs.files
+    from(sourceSets*.allSource) {
+        into 'src'
+    }
+
+    from(projectDir) {
+        include versionFile.name
+    }
+}
+
+task backUpReleaseDistribution(type: Copy) {
+    group 'version'
+
+    from createDistribution.outputs.files
+    into "$buildDir/backup"
+}
+
+task release(dependsOn: backUpReleaseDistribution) {
+    group 'version'
+    doLast {
+        logger.quiet('Release the project...')
+    }
+}
+
+tasks.addRule("Pattern: increment<Classifier>Version - Increment the project version classifier.") { taskName ->
+    if (taskName.startsWith('increment') && taskName.endsWith('Version')) {
+        task(taskName) {
+            group 'version'
+            doLast {
+                String classifier = (taskName - 'increment' - 'Version').toLowerCase()
+                String currentVersion = version.toString()
+
+                switch (classifier) {
+                    case 'major': ++version.major
+                        break
+                    case 'minor': ++version.minor
+                        break
+                    default:
+                        throw new GradleException("Invalid version type '$classifier'. Allowed types :['Major','Minor']")
+                }
+
+                String newVersion = version.toString()
+
+                logger.quiet "Incrementing $classifier project version : $currentVersion ->$newVersion"
+
+                ant.propertyfile(file: versionFile) {
+                    entry(key: classifier, type: 'int', operation: '+', value: 1)
+                }
+
+                logger.quiet "Current project version : $version"
+            }
+        }
+    }
+}
