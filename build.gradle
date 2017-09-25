@@ -1,3 +1,5 @@
+import com.vnicers.build.gradle.ProjectVersion
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
@@ -9,8 +11,90 @@ buildscript {
     }
 }
 
-allprojects {
+ext {
+    versionFile = file('gradle.properties')
+}
+
+configure(rootProject) {
+    description = "moa"
+
+    project.version = new ProjectVersion(major.toInteger(), minor.toInteger(), release.toBoolean())
+
+
+    task printVersion {
+        group 'version'
+
+        doLast {
+            logger.quiet "Version: $version"
+        }
+    }
+
+    gradle.taskGraph.whenReady { TaskExecutionGraph taskGraph ->
+        if (taskGraph.hasTask(release)) {
+            if (!version.release) {
+                version.release = true
+
+                ant.propertyfile(file: versionFile) {
+                    entry(key: 'release', type: 'string', operation: '=', value: 'true')
+                }
+            }
+        }
+    }
+
+    task wrapper(type: Wrapper) {
+        description = "Generates gradlew[.bat] scripts"
+        gradleVersion = '4.1'
+
+        doLast() {
+            def gradleOpts = "-XX:MaxMetaspaceSize=1024m -Xmx1024m"
+            def gradleBatOpts = "$gradleOpts -XX:MaxHeapSize=256m"
+            File wrapperFile = file("gradlew")
+            wrapperFile.text = wrapperFile.text.replace("DEFAULT_JVM_OPTS=",
+                    "GRADLE_OPTS=\"$gradleOpts \$GRADLE_OPTS\"\nDEFAULT_JVM_OPTS=")
+            File wrapperBatFile = file("gradlew.bat")
+            wrapperBatFile.text = wrapperBatFile.text.replace("set DEFAULT_JVM_OPTS=",
+                    "set GRADLE_OPTS=$gradleBatOpts %GRADLE_OPTS%\nset DEFAULT_JVM_OPTS=")
+        }
+    }
+
+    tasks.addRule("Pattern: increment<Classifier>Version - Increment the project version classifier.") { taskName ->
+        if (taskName.startsWith('increment') && taskName.endsWith('Version')) {
+            task(taskName) {
+                group 'version'
+                doLast {
+                    String classifier = (taskName - 'increment' - 'Version').toLowerCase()
+                    String currentVersion = version.toString()
+
+                    switch (classifier) {
+                        case 'major': ++version.major
+                            break
+                        case 'minor': ++version.minor
+                            break
+                        default:
+                            throw new GradleException("Invalid version type '$classifier'. Allowed types :['Major','Minor']")
+                    }
+
+                    String newVersion = version.toString()
+
+                    logger.quiet "Incrementing $classifier project version : $currentVersion ->$newVersion"
+
+                    ant.propertyfile(file: versionFile) {
+                        entry(key: classifier, type: 'int', operation: '+', value: 1)
+                    }
+
+                    logger.quiet "Current project version : $version"
+                }
+            }
+        }
+
+    }
+}
+
+
+subprojects {
     group = 'com.vnicers'
+
+    version = rootProject.version
 
     apply plugin: 'java'
     apply plugin: 'idea'
@@ -72,9 +156,6 @@ allprojects {
         maven { url "https://jitpack.io" }
     }
 
-}
-
-configure(subprojects /*- project(":build-src")*/) {
     dependencies {
 
         implementation 'org.apache.commons:commons-lang3:3.6'
@@ -85,32 +166,24 @@ configure(subprojects /*- project(":build-src")*/) {
 
         testCompile 'junit:junit:4.12'
     }
+
 }
 
-configure(rootProject) {
-    description = "moa"
 
-    // don't publish the default jar for the root project
-    configurations.archives.artifacts.clear()
-
-    dependencies {  // for integration tests
-        testCompile(project(":moa-admin"))
+ProjectVersion readVersion() {
+    logger.quiet('Reading the gradle.properties')
+    logger.quiet("Reading the gradle.properties")
+    if (!versionFile.exists()) {
+        throw new GradleException("Required version file does not exits :$versionFile.canonicalPath")
     }
 
-    task wrapper(type: Wrapper) {
-        description = "Generates gradlew[.bat] scripts"
-        gradleVersion = '4.1'
 
-        doLast() {
-            def gradleOpts = "-XX:MaxMetaspaceSize=1024m -Xmx1024m"
-            def gradleBatOpts = "$gradleOpts -XX:MaxHeapSize=256m"
-            File wrapperFile = file("gradlew")
-            wrapperFile.text = wrapperFile.text.replace("DEFAULT_JVM_OPTS=",
-                    "GRADLE_OPTS=\"$gradleOpts \$GRADLE_OPTS\"\nDEFAULT_JVM_OPTS=")
-            File wrapperBatFile = file("gradlew.bat")
-            wrapperBatFile.text = wrapperBatFile.text.replace("set DEFAULT_JVM_OPTS=",
-                    "set GRADLE_OPTS=$gradleBatOpts %GRADLE_OPTS%\nset DEFAULT_JVM_OPTS=")
-        }
+
+    Properties versionProps = new Properties()
+
+    versionFile.withInputStream { stream ->
+        versionProps.load(stream)
     }
-
+    new ProjectVersion(versionProps.major.toInteger(),
+            versionProps.minor.toInteger(), versionProps.release.toBoolean())
 }
