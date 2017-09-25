@@ -5,6 +5,15 @@ description = '管理控制台'
 
 apply plugin: 'war'
 apply plugin: 'org.akhikhl.gretty'
+apply plugin: 'build-announcements'
+
+task helloWorld {
+    doLast {
+        println "Hello, world!"
+    }
+}
+
+
 
 buildscript {
     repositories {
@@ -17,7 +26,7 @@ buildscript {
 }
 
 dependencies {
-    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+    compileClasspath 'javax.servlet:javax.servlet-api:3.1.0'
 
 }
 

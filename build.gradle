@@ -1,5 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+
+
+
 buildscript {
     repositories {
         mavenLocal()
@@ -67,16 +70,16 @@ allprojects {
 
 }
 
-configure(subprojects- project(":build-src")) {
+configure(subprojects - project(":build-src")) {
     dependencies {
 
-        compile('org.apache.commons:commons-lang3:3.6')
-        compile('ch.qos.logback:logback-classic:1.2.3')
+        implementation 'org.apache.commons:commons-lang3:3.6'
+        implementation 'ch.qos.logback:logback-classic:1.2.3'
 
-        compileOnly('com.google.code.findbugs:jsr305:3.0.2')
-        compileOnly('org.projectlombok:lombok:1.16.18')
 
-        testCompile('junit:junit:4.12')
+        compileOnly 'org.projectlombok:lombok:1.16.18'
+
+        testCompile 'junit:junit:4.12'
     }
 }
 
