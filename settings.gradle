@@ -8,3 +8,6 @@ rootProject.children.each {project ->
     assert project.buildFile.exists()
     assert project.buildFile.isFile()
 }
+//include 'buildSrc'
+
+//rootProject.children.find{ it.name == "buildSrc" }.name = "moa-build-src"
