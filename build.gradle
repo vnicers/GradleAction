@@ -74,7 +74,7 @@ allprojects {
 
 }
 
-configure(subprojects - project(":build-src")) {
+configure(subprojects /*- project(":build-src")*/) {
     dependencies {
 
         implementation 'org.apache.commons:commons-lang3:3.6'

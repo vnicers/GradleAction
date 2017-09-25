@@ -1,10 +1,10 @@
 rootProject.name = 'GradleAction'
 
-include 'buildSrc'
+// include 'buildSrc'
 include "moa-admin"
 include 'moa-server'
 include 'moa-model'
-rootProject.children.find{ it.name == "buildSrc" }.name = "build-src"
+// rootProject.children.find{ it.name == "buildSrc" }.name = "build-src"
 
 
 rootProject.children.each {project ->
