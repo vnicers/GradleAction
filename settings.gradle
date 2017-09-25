@@ -1,6 +1,11 @@
 rootProject.name = 'GradleAction'
 
+include 'buildSrc'
 include "moa-admin"
+include 'moa-server'
+include 'moa-model'
+rootProject.children.find{ it.name == "buildSrc" }.name = "build-src"
+
 
 rootProject.children.each {project ->
     project.buildFileName = "${project.name}.gradle"
@@ -8,7 +13,4 @@ rootProject.children.each {project ->
     assert project.buildFile.exists()
     assert project.buildFile.isFile()
 }
-include 'buildSrc'
-
-rootProject.children.find{ it.name == "buildSrc" }.name = "build-src"
 
