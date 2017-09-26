@@ -12,4 +12,10 @@ public class BaseTest {
         log.info("dd弟弟带饭");
         Assert.assertEquals(1,1);
     }
+
+    @Test
+    public void testJunit2(){
+        log.info("dd弟弟带饭222");
+        Assert.assertEquals(2,2);
+    }
 }

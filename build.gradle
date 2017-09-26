@@ -79,6 +79,7 @@ configure(rootProject) {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
+    apply plugin: "jacoco"
 
     idea {
         module {
@@ -87,6 +88,15 @@ subprojects {
         }
     }
 
+    jacocoTestReport {
+        description = "Generate Jacoco coverage reports after running tests."
+        additionalSourceDirs = files(sourceSets.main.allJava.srcDirs)
+        reports {
+            xml.enabled false
+            csv.enabled false
+            html.destination file("${buildDir}/jacoco")
+        }
+    }
 
     configurations.all {
         // Check for updates every build
