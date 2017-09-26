@@ -1,11 +1,7 @@
-import com.vnicers.build.gradle.ProjectVersion
-import com.vnicers.build.gradle.ReleaseVersionTask
-
 description = '管理控制台'
 
 apply plugin: 'war'
 apply plugin: 'org.akhikhl.gretty'
-
 
 buildscript {
     repositories {
@@ -19,6 +15,8 @@ buildscript {
 
 dependencies {
    // compile fileTree(dir: "$webAppDir/WEB-INF/lib", include: ['*.jar'])
+    compile project(':moa-model')
+
     runtime 'javax.servlet:javax.servlet-api:3.1.0'
 }
 

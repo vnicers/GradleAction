@@ -9,7 +9,7 @@ public class BaseTest {
 
     @Test
     public void testJunit(){
-        log.info("xxx111");
+        log.info("dd弟弟带饭");
         Assert.assertEquals(1,1);
     }
 }

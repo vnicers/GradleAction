@@ -11,10 +11,10 @@ buildscript {
     }
 }
 
-configure(rootProject) {
-    description = "moa"
 
-    project.version = new ProjectVersion(major.toInteger(), minor.toInteger(), release.toBoolean())
+allprojects{
+    group = 'com.vnicers'
+    version = new ProjectVersion(major.toInteger(), minor.toInteger(), release.toBoolean())
 
 
     task printVersion {
@@ -24,6 +24,10 @@ configure(rootProject) {
             logger.quiet "Version: $version"
         }
     }
+}
+
+configure(rootProject) {
+    description = "moa root "
 
     gradle.taskGraph.whenReady { TaskExecutionGraph taskGraph ->
         if (taskGraph.hasTask(release)) {
@@ -37,21 +41,6 @@ configure(rootProject) {
         }
     }
 
-    task wrapper(type: Wrapper) {
-        description = "Generates gradlew[.bat] scripts"
-        gradleVersion = '4.1'
-
-        doLast() {
-            def gradleOpts = "-XX:MaxMetaspaceSize=1024m -Xmx1024m"
-            def gradleBatOpts = "$gradleOpts -XX:MaxHeapSize=256m"
-            File wrapperFile = file("gradlew")
-            wrapperFile.text = wrapperFile.text.replace("DEFAULT_JVM_OPTS=",
-                    "GRADLE_OPTS=\"$gradleOpts \$GRADLE_OPTS\"\nDEFAULT_JVM_OPTS=")
-            File wrapperBatFile = file("gradlew.bat")
-            wrapperBatFile.text = wrapperBatFile.text.replace("set DEFAULT_JVM_OPTS=",
-                    "set GRADLE_OPTS=$gradleBatOpts %GRADLE_OPTS%\nset DEFAULT_JVM_OPTS=")
-        }
-    }
 
     tasks.addRule("Pattern: increment<Classifier>Version - Increment the project version classifier.") { taskName ->
         if (taskName.startsWith('increment') && taskName.endsWith('Version')) {
@@ -88,10 +77,6 @@ configure(rootProject) {
 
 
 subprojects {
-    group = 'com.vnicers'
-
-    version = rootProject.version
-
     apply plugin: 'java'
     apply plugin: 'idea'
 
@@ -107,8 +92,6 @@ subprojects {
         // Check for updates every build
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
-
-    // ext.gradleScriptDir = "${rootProject.projectDir}/gradle"
 
     sourceSets {
         // Make the compileOnly dependencies available when compiling/running tests
@@ -131,6 +114,8 @@ subprojects {
 
     test {
         testLogging {
+            showStandardStreams true
+            exceptionFormat 'full'
             // Show that tests are run in the command-line output
             events 'STARTED', 'PASSED', 'SKIPPED', 'FAILED', 'STANDARD_OUT', 'STANDARD_ERROR'
         }
